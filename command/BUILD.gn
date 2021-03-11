@@ -11,16 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-static_library("hievent_lite") {
+static_library("hievent_lite_command") {
     sources = [
-        "frameworks/hiview_event.c",
-        "frameworks/hiview_output_event.c",
+        "hievent_lite_command.c",
     ]
     cflags = [ "-Wall" ]
     include_dirs = [
-        "//base/hiviewdfx/hievent_lite/interfaces/native/innerkits",
-        "//base/hiviewdfx/hiview_lite",
-        "//foundation/distributedschedule/samgr_lite/interfaces/kits/samgr",
+        "//base/hiviewdfx/utils/lite",
     ]
-    deps = ["//base/hiviewdfx/hiview_lite"]
 }
