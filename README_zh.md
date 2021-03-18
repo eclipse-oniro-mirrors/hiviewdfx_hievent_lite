@@ -2,6 +2,7 @@
 
 -   [简介](#section469617221261)
 -   [架构](#section15884114210197)
+-   [相关仓](#section767551120815)
 
 ## 简介<a name="section469617221261"></a>
 
@@ -16,3 +17,12 @@
 5.  event调用输出接口将事件写入文件，每次新写文件时，先向事件文件中加入公共头信息；
 6.  事件信息上报至手机侧的处理由上传组件被动或主动定时完成；
 
+## 相关仓<a name="section767551120815"></a>
+
+[DFX子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/DFX%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
+
+[hiviwdfx\_hilog\_lite](https://gitee.com/openharmony/hiviewdfx_hilog_lite/blob/master/README_zh.md)
+
+[hiviwdfx\_hiview\_lite](https://gitee.com/openharmony/hiviewdfx_hiview_lite/blob/master/README_zh.md)
+
+**hiviwdfx\_hievent\_lite**
