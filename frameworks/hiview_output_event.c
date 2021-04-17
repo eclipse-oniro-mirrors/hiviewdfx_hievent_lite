@@ -148,9 +148,12 @@ void OutputEvent(const uint8 *data)
     HiviewCache *c = NULL;
     HiviewFile *f = NULL;
     GetEventCache(event->type, &c, &f);
+    if (c == NULL) {
+        return;
+    }
     if (WriteToCache(c, (uint8 *)&(event->common), sizeof(HiEventCommon)) == sizeof(HiEventCommon)) {
         WriteToCache(c, event->payload, event->common.len);
-        if (c != NULL && c->usedSize >= HIVIEW_FILE_BUF_SIZE) {
+        if (c->usedSize >= HIVIEW_FILE_BUF_SIZE || g_hiviewConfig.outputOption == OUTPUT_OPTION_DEBUG) {
             switch (g_hiviewConfig.outputOption) {
                 /* Event do not support the text format */
                 case OUTPUT_OPTION_TEXT_FILE:
@@ -158,6 +161,7 @@ void OutputEvent(const uint8 *data)
                     HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_BIN_FILE, event->type);
                     break;
                 case OUTPUT_OPTION_FLOW:
+                case OUTPUT_OPTION_DEBUG:
                     HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_FLOW, event->type);
                     break;
                 default:
