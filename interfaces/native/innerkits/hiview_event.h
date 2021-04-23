@@ -92,6 +92,13 @@ void HiEventPutInteger(HiEvent *event, int8 key, uint32 value);
  **/
 void HiEventReport(HiEvent *event);
 
+/*
+ * Interface for flush event before the system restarts.
+ * @param syncFlag indicates synchronised flush or asynchronous flush.
+ * @attention Use this interface to flush event to the UART or the files.
+ */
+void HiEventFlush(boolean syncFlag);
+
 #ifndef HIEVENT_COMPILE_TYPE
 #define HIEVENT_COMPILE_TYPE (HIEVENT_FAULT | HIEVENT_UE | HIEVENT_STAT)
 #endif

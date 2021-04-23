@@ -172,3 +172,8 @@ static uint8 HiEventEncode(uint8 k, uint32 v, uint8 last, uint8 *encodeOut)
 
     return tag.len + 1;
 }
+
+void HiEventFlush(boolean syncFlag)
+{
+    FlushEvent(syncFlag);
+}

@@ -59,6 +59,13 @@ uint32 ReadEventFile(uint8 eventType, uint8 *buf, uint32 len);
  **/
 int32 EventContentFmt(char *outStr, int32 outStrLen, const uint8 *pEvent);
 
+/*
+ * Interface for flush event before the system restarts.
+ * @param syncFlag indicates synchronised flush or asynchronous flush.
+ * @attention Use this interface to flush event to the UART or the files.
+ */
+void FlushEvent(boolean syncFlag);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

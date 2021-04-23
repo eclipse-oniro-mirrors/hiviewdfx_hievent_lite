@@ -51,6 +51,12 @@ static HiviewFile g_statEventFile = {
     .fhandle = -1,
 };
 
+typedef struct EventFlushInfo EventFlushInfo;
+struct EventFlushInfo {
+    HiviewMutexId_t mutex;
+};
+static EventFlushInfo g_eventFlushInfo;
+
 /* Output the event to UART using plaintext. */
 static void OutputEventRealtime(const Request *req);
 /* Output the event to FLASH using binary. */
@@ -64,6 +70,7 @@ static void GetEventCache(uint8 type, HiviewCache **c, HiviewFile **f);
 
 void InitCoreEventOutput(void)
 {
+    g_eventFlushInfo.mutex = MUTEX_InitValue();
     HiviewRegisterMsgHandle(HIVIEW_MSG_OUTPUT_EVENT_BIN_FILE, OutputEvent2Flash);
     HiviewRegisterMsgHandle(HIVIEW_MSG_OUTPUT_EVENT_FLOW, OutputEventRealtime);
 }
@@ -173,6 +180,7 @@ void OutputEvent(const uint8 *data)
 
 static void OutputEventRealtime(const Request *req)
 {
+    HIVIEW_MutexLock(g_eventFlushInfo.mutex);
     HiviewCache *c = NULL;
     HiviewFile *f = NULL;
     uint16 payloadLen;
@@ -203,6 +211,7 @@ static void OutputEventRealtime(const Request *req)
         EventContentFmt(tmpBuffer, LOG_FMT_MAX_LEN, (uint8 *)&event);
         HIVIEW_UartPrint(tmpBuffer);
     }
+    HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
 }
 
 static void OutputEvent2Flash(const Request *req)
@@ -212,6 +221,7 @@ static void OutputEvent2Flash(const Request *req)
 
 static void Output2Flash(uint8 eventType)
 {
+    HIVIEW_MutexLock(g_eventFlushInfo.mutex);
     HiviewCache *c = NULL;
     HiviewFile *f = NULL;
     uint8 *tmpBuffer = NULL;
@@ -222,14 +232,17 @@ static void Output2Flash(uint8 eventType)
 
     GetEventCache((uint8)eventType, &c, &f);
     if (c == NULL) {
+        HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
         return;
     }
     outputSize = c->usedSize;
     if (outputSize < sizeof(HiEventCommon)) {
+        HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
         return;
     }
     tmpBuffer = (uint8 *)HIVIEW_MemAlloc(MEM_POOL_HIVIEW_ID, outputSize);
     if (tmpBuffer == NULL) {
+        HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
         return;
     }
     while (c->usedSize >= sizeof(HiEventCommon) && outputSize > (len + sizeof(HiEventCommon))) {
@@ -256,6 +269,7 @@ static void Output2Flash(uint8 eventType)
         HIVIEW_UartPrint("Failed to write event data.");
     }
     HIVIEW_MemFree(MEM_POOL_HIVIEW_ID, tmpBuffer);
+    HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
 }
 
 uint32 GetEventFileSize(uint8 eventType)
@@ -341,4 +355,91 @@ static void GetEventCache(uint8 type, HiviewCache **c, HiviewFile **f)
         default:
             break;
     }
+}
+
+static void FlushEventAsync(const uint8 type)
+{
+    switch (g_hiviewConfig.outputOption) {
+        /* Event do not support the text format */
+        case OUTPUT_OPTION_TEXT_FILE:
+        case OUTPUT_OPTION_BIN_FILE:
+            HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_BIN_FILE, type);
+            break;
+        case OUTPUT_OPTION_FLOW:
+            HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_FLOW, type);
+            break;
+        default:
+            break;
+    }
+}
+
+static void FlushEventInfo(const uint8 type, const HiviewCache *c, boolean syncFlag)
+{
+    Request request = {0};
+    request.msgValue = type;
+    if (c == NULL) {
+        return;
+    }
+    if (c != NULL && c->usedSize > 0) {
+        if (syncFlag == FALSE) {
+            /* If syncFlag is FALSE, refresh event information asynchronously */
+            FlushEventAsync(type);
+        } else {
+            switch (g_hiviewConfig.outputOption) {
+                /* Event do not support the text format */
+                case OUTPUT_OPTION_TEXT_FILE:
+                case OUTPUT_OPTION_BIN_FILE:
+                    OutputEvent2Flash(&request);
+                    break;
+                case OUTPUT_OPTION_FLOW:
+                    OutputEventRealtime(&request);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+static void FlushFaultEvent(boolean syncFlag)
+{
+    HiviewCache *c = NULL;
+    HiviewFile *f = NULL;
+
+    GetEventCache(HIEVENT_FAULT, &c, &f);
+    if (c == NULL || f == NULL) {
+        return;
+    }
+    FlushEventInfo(HIEVENT_FAULT, c, syncFlag);
+}
+
+static void FlushUeEvent(boolean syncFlag)
+{
+    HiviewCache *c = NULL;
+    HiviewFile *f = NULL;
+
+    GetEventCache(HIEVENT_UE, &c, &f);
+    if (c == NULL || f == NULL) {
+        return;
+    }
+    FlushEventInfo(HIEVENT_UE, c, syncFlag);
+}
+
+static void FlushStatEvent(boolean syncFlag)
+{
+    HiviewCache *c = NULL;
+    HiviewFile *f = NULL;
+
+    GetEventCache(HIEVENT_STAT, &c, &f);
+    if (c == NULL || f == NULL) {
+        return;
+    }
+    FlushEventInfo(HIEVENT_STAT, c, syncFlag);
+}
+
+void FlushEvent(boolean syncFlag)
+{
+    FlushFaultEvent(syncFlag);
+    FlushUeEvent(syncFlag);
+    FlushStatEvent(syncFlag);
 }
