@@ -70,7 +70,7 @@ static void GetEventCache(uint8 type, HiviewCache **c, HiviewFile **f);
 
 void InitCoreEventOutput(void)
 {
-    g_eventFlushInfo.mutex = MUTEX_InitValue();
+    g_eventFlushInfo.mutex = HIVIEW_MutexInit();
     HiviewRegisterMsgHandle(HIVIEW_MSG_OUTPUT_EVENT_BIN_FILE, OutputEvent2Flash);
     HiviewRegisterMsgHandle(HIVIEW_MSG_OUTPUT_EVENT_FLOW, OutputEventRealtime);
 }
