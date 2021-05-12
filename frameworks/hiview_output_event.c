@@ -158,6 +158,10 @@ void OutputEvent(const uint8 *data)
     if (c == NULL) {
         return;
     }
+#if LITTLE_ENDIAN_SYSTEM
+    event->common.eventId = Change16Endian(event->common.eventId);
+    event->common.time = Change32Endian(event->common.time);
+#endif
     if (WriteToCache(c, (uint8 *)&(event->common), sizeof(HiEventCommon)) == sizeof(HiEventCommon)) {
         WriteToCache(c, event->payload, event->common.len);
         if (c->usedSize >= HIVIEW_FILE_BUF_SIZE || g_hiviewConfig.outputOption == OUTPUT_OPTION_DEBUG) {
@@ -196,6 +200,10 @@ static void OutputEventRealtime(const Request *req)
             printf("Discard cache[%d] data.", c->type);
             break;
         }
+#if LITTLE_ENDIAN_SYSTEM
+        event.common.eventId = Change16Endian(event.common.eventId);
+        event.common.time = Change32Endian(event.common.time);
+#endif
         payloadLen = event.common.len;
         if (payloadLen > sizeof(payload)) {
             payloadLen = sizeof(payload);
