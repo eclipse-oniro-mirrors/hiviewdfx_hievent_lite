@@ -177,3 +177,13 @@ void HiEventFlush(boolean syncFlag)
 {
     FlushEvent(syncFlag);
 }
+
+void HiEventRegisterProc(HieventProc func)
+{
+    HiviewRegisterHieventProc(func);
+}
+
+void HiEventUnRegisterProc(HieventProc func)
+{
+    HiviewUnRegisterHieventProc(func);
+}

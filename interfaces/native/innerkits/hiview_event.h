@@ -53,6 +53,13 @@ typedef struct {
 #pragma pack()
 
 /**
+ * Definitions for function Pointer.
+ * @param data HieventContent pointer.
+ * @return function handle result.
+ **/
+typedef boolean (*HieventProc)(const HiEvent *event);
+
+/**
  * Create and output a event.
  * Use the macro definition interface instead of directly using this interface.
  * @param type    Event type.
@@ -98,6 +105,17 @@ void HiEventReport(HiEvent *event);
  * @attention Use this interface to flush event to the UART or the files.
  */
 void HiEventFlush(boolean syncFlag);
+
+/**
+ * Interface for register the Hievent handle.
+ * @param func Function Pointer.
+ **/
+void HiEventRegisterProc(HieventProc func);
+
+/**
+ * Interface for deregister the Hievent handle.
+ **/
+void HiEventUnRegisterProc(HieventProc func);
 
 #ifndef HIEVENT_COMPILE_TYPE
 #define HIEVENT_COMPILE_TYPE (HIEVENT_FAULT | HIEVENT_UE | HIEVENT_STAT)
