@@ -17,6 +17,7 @@
 #define HOS_LITE_HIVIEW_OUTPUT_EVENT_H
 
 #include "ohos_types.h"
+#include "event.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -65,6 +66,17 @@ int32 EventContentFmt(char *outStr, int32 outStrLen, const uint8 *pEvent);
  * @attention Use this interface to flush event to the UART or the files.
  */
 void FlushEvent(boolean syncFlag);
+
+/**
+ * Interface for register the Hievent handle.
+ * @param func Function Pointer.
+ **/
+void HiviewRegisterHieventProc(HieventProc func);
+
+/**
+ * Interface for deregister the Hievent handle.
+ **/
+void HiviewUnRegisterHieventProc(HieventProc func);
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -56,6 +56,7 @@ struct EventFlushInfo {
     HiviewMutexId_t mutex;
 };
 static EventFlushInfo g_eventFlushInfo;
+static HieventProc g_hieventOutputProc = NULL;
 
 /* Output the event to UART using plaintext. */
 static void OutputEventRealtime(const Request *req);
@@ -149,6 +150,12 @@ void OutputEvent(const uint8 *data)
 {
     if (data == NULL) {
         return;
+    }
+
+    if (g_hieventOutputProc != NULL) {
+        if (g_hieventOutputProc((HiEvent *)data) == TRUE) {
+            return;
+        }
     }
 
     HiEvent *event = (HiEvent *)data;
@@ -450,4 +457,17 @@ void FlushEvent(boolean syncFlag)
     FlushFaultEvent(syncFlag);
     FlushUeEvent(syncFlag);
     FlushStatEvent(syncFlag);
+}
+
+void HiviewRegisterHieventProc(HieventProc func)
+{
+    g_hieventOutputProc = func;
+}
+
+void HiviewUnRegisterHieventProc(HieventProc func)
+{
+    (void)func;
+    if (g_hieventOutputProc != NULL) {
+        g_hieventOutputProc = NULL;
+    }
 }
