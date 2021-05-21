@@ -55,7 +55,8 @@ typedef struct {
 /**
  * Definitions for function Pointer.
  * @param data HieventContent pointer.
- * @return function handle result.
+ * @return function handle result. If TRUE is returned, the platform does not process,
+ *         else the platform continues to process.
  **/
 typedef boolean (*HieventProc)(const HiEvent *event);
 
