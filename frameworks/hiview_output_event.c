@@ -169,22 +169,37 @@ void OutputEvent(const uint8 *data)
     event->common.eventId = Change16Endian(event->common.eventId);
     event->common.time = Change32Endian(event->common.time);
 #endif
-    if (WriteToCache(c, (uint8 *)&(event->common), sizeof(HiEventCommon)) == sizeof(HiEventCommon)) {
-        WriteToCache(c, event->payload, event->common.len);
-        if (c->usedSize >= HIVIEW_FILE_BUF_SIZE || g_hiviewConfig.outputOption == OUTPUT_OPTION_DEBUG) {
-            switch (g_hiviewConfig.outputOption) {
-                /* Event do not support the text format */
-                case OUTPUT_OPTION_TEXT_FILE:
-                case OUTPUT_OPTION_BIN_FILE:
-                    HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_BIN_FILE, event->type);
-                    break;
-                case OUTPUT_OPTION_FLOW:
-                case OUTPUT_OPTION_DEBUG:
-                    HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_FLOW, event->type);
-                    break;
-                default:
-                    break;
-            }
+    boolean reachMaxThreshold  = FALSE;
+    /* If the cache reach the max size, output and do not write cache. */
+    if ((c->usedSize + sizeof(HiEventCommon) + event->common.len) > EVENT_CACHE_SIZE) {
+        HIVIEW_UartPrint("HiEvent have no sufficient space to write event info to cache!\n");
+        reachMaxThreshold = TRUE;
+    } else {
+        if (WriteToCache(c, (uint8 *)&(event->common), sizeof(HiEventCommon)) == sizeof(HiEventCommon)) {
+            WriteToCache(c, event->payload, event->common.len);
+        }
+    }
+
+    if (c->usedSize >= HIVIEW_HIEVENT_FILE_BUF_SIZE || g_hiviewConfig.outputOption == OUTPUT_OPTION_DEBUG) {
+        switch (g_hiviewConfig.outputOption) {
+            /* Event do not support the text format */
+            case OUTPUT_OPTION_TEXT_FILE:
+            case OUTPUT_OPTION_BIN_FILE:
+                HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_BIN_FILE, event->type);
+                break;
+            case OUTPUT_OPTION_FLOW:
+            case OUTPUT_OPTION_DEBUG:
+                HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_FLOW, event->type);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /* The cache reach the max size, output and then write cache. */
+    if (reachMaxThreshold) {
+        if (WriteToCache(c, (uint8 *)&(event->common), sizeof(HiEventCommon)) == sizeof(HiEventCommon)) {
+            WriteToCache(c, event->payload, event->common.len);
         }
     }
 }
