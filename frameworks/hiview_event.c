@@ -39,6 +39,7 @@ static uint8 HiEventEncode(uint8 k, uint32 v, uint8 last, uint8 *encodeOut);
 
 static void HiEventInit(void)
 {
+    HIVIEW_UartPrint("hievent will init.\n");
     if (g_hiviewConfig.eventSwitch == HIVIEW_FEATURE_ON && HIEVENT_COMPILE_TYPE > HIEVENT_NONE) {
         InitCoreEventOutput();
         HiviewRegisterInitFunc(HIVIEW_CMP_TYPE_EVENT, InitEventOutput);
