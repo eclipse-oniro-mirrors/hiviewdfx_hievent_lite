@@ -33,5 +33,6 @@ static_library("hievent_lite") {
         "//base/hiviewdfx/hiview_lite",
         "//foundation/distributedschedule/samgr_lite/interfaces/kits/samgr",
     ]
+    public_configs = ["//base/hiviewdfx/hiview_lite:hiview_lite_config"]
     deps = ["//base/hiviewdfx/hiview_lite"]
 }
