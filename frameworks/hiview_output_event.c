@@ -40,14 +40,20 @@ static HiviewCache g_statEventCache = {
 };
 static HiviewFile g_faultEventFile = {
     .path = HIVIEW_FILE_PATH_FAULT_EVENT,
+    .outPath = HIVIEW_FILE_OUT_PATH_FAULT_EVENT,
+    .pFunc = NULL,
     .fhandle = -1,
 };
 static HiviewFile g_ueEventFile = {
     .path = HIVIEW_FILE_PATH_UE_EVENT,
+    .outPath = HIVIEW_FILE_OUT_PATH_UE_EVENT,
+    .pFunc = NULL,
     .fhandle = -1,
 };
 static HiviewFile g_statEventFile = {
     .path = HIVIEW_FILE_PATH_STAT_EVENT,
+    .outPath = HIVIEW_FILE_OUT_PATH_STAT_EVENT,
+    .pFunc = NULL,
     .fhandle = -1,
 };
 
@@ -485,4 +491,37 @@ void HiviewUnRegisterHieventProc(HieventProc func)
     if (g_hieventOutputProc != NULL) {
         g_hieventOutputProc = NULL;
     }
+}
+
+int HiEventFileProcImp(uint8 type, const char *dest, uint8 mode)
+{
+    Output2Flash(type);
+    HIVIEW_MutexLock(g_eventFlushInfo.mutex);
+    HiviewCache* c = NULL;
+    HiviewFile* f = NULL;
+
+    GetEventCache(type, &c, &f);
+    if (f == NULL || strcmp(f->path, dest) == 0) {
+        HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
+        return -1;
+    }
+    int ret = ProcFile(f, dest, mode);
+    HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
+    return ret;
+}
+
+void HiviewRegisterHieventFileWatcher(uint8 type, FileProc func, const char *path)
+{
+    HiviewCache* c = NULL;
+    HiviewFile* f = NULL;
+    GetEventCache(type, &c, &f);
+    RegisterFileWatcher(f, func, path);
+}
+
+void HiviewUnRegisterHieventFileWatcher(uint8 type, FileProc func)
+{
+    HiviewCache* c = NULL;
+    HiviewFile* f = NULL;
+    GetEventCache(type, &c, &f);
+    UnRegisterFileWatcher(f, func);
 }

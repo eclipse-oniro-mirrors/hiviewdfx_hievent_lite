@@ -60,6 +60,18 @@ typedef struct {
  **/
 typedef boolean (*HieventProc)(const HiEvent *event);
 
+#ifndef FILE_PROC_DEFINED
+#define FILE_PROC_DEFINED
+/**
+ * Callback function prototype for file processing.
+ *
+ * @param path the path of the file to be processed.
+ * @param type the type of the file to be processed.
+ * @param event the type of event that triggered the function. 0 for file full.
+ **/
+typedef void (*FileProc)(const char *path, uint8 type, uint8 event);
+#endif
+
 /**
  * Create and output a event.
  * Use the macro definition interface instead of directly using this interface.
@@ -117,6 +129,34 @@ void HiEventRegisterProc(HieventProc func);
  * Interface for deregister the Hievent handle.
  **/
 void HiEventUnRegisterProc(HieventProc func);
+
+/**
+ * Add a monitoring function when the specified type of file is full .
+ *
+ * @param type hievent type.
+ * @param func callback function.
+ * @param dest hievent output target file path.
+ **/
+void HiEventFileAddWatcher(uint8 type, FileProc func, const char *dest);
+
+/**
+ * Remove monitoring of specified types of files.
+ *
+ * @param type hievent type.
+ * @param func callback function.
+ **/
+void HiEventFileRemoveWatcher(uint8 type, FileProc func);
+
+/**
+ * Process files according to mode.
+ *
+ * @param type hievent type.
+ * @param dest hievent output target file path.
+ * @param mode file processing mode. 0 for copy specified type hievent file to dest and keep the
+ *             content in the source file, 1 for rename specified type hievent file to dest.
+ * @return 0 if success, otherwise -1.
+ **/
+int HiEventFileProc(uint8 type, const char *dest, uint8 mode);
 
 #ifndef HIEVENT_COMPILE_TYPE
 #define HIEVENT_COMPILE_TYPE (HIEVENT_FAULT | HIEVENT_UE | HIEVENT_STAT)
