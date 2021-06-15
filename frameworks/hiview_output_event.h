@@ -19,6 +19,7 @@
 #include "ohos_types.h"
 #include "event.h"
 
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -77,6 +78,31 @@ void HiviewRegisterHieventProc(HieventProc func);
  * Interface for deregister the Hievent handle.
  **/
 void HiviewUnRegisterHieventProc(HieventProc func);
+
+/**
+ * Process files according to mode.
+ * @param type hievent type.
+ * @param dest hievent output target file path.
+ * @param mode file processing mode. 0 for copy specified type hievent file to dest and keep the
+ *             content in the source file, 1 for rename specified type hievent file to dest.
+ * @return 0 if success, otherwise -1.
+ **/
+int HiEventFileProcImp(uint8 type, const char *dest, uint8 mode);
+
+/**
+ * Add a monitoring function when the specified type of file is full .
+ * @param type hievent type.
+ * @param func callback function.
+ * @param dest hievent output target file path.
+ **/
+void HiviewRegisterHieventFileWatcher(uint8 type, FileProc func, const char *dest);
+
+/**
+ * Remove monitoring of specified types of files.
+ * @param type hievent type.
+ * @param func callback function.
+ **/
+void HiviewUnRegisterHieventFileWatcher(uint8 type, FileProc func);
 
 #ifdef __cplusplus
 #if __cplusplus

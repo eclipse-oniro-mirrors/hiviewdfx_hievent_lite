@@ -13,16 +13,17 @@
  * limitations under the License.
  */
 
-#include "securec.h"
-#include "string.h"
+#include "hiview_event.h"
+#include "hiview_config.h"
+#include "hiview_def.h"
+#include "hiview_file.h"
+#include "hiview_output_event.h"
+#include "hiview_service.h"
+#include "hiview_util.h"
 #include "ohos_types.h"
 #include "ohos_init.h"
-#include "hiview_def.h"
-#include "hiview_util.h"
-#include "hiview_service.h"
-#include "hiview_output_event.h"
-#include "hiview_config.h"
-#include "hiview_event.h"
+#include "securec.h"
+#include "string.h"
 
 #define SINGLE_VALUE_MAX_LEN   5
 #define EVENT_VALUE_MAX_NUM    16
@@ -187,4 +188,19 @@ void HiEventRegisterProc(HieventProc func)
 void HiEventUnRegisterProc(HieventProc func)
 {
     HiviewUnRegisterHieventProc(func);
+}
+
+void HiEventFileAddWatcher(uint8 type, FileProc func, const char *path)
+{
+    HiviewRegisterHieventFileWatcher(type, func, path);
+}
+
+void HiEventFileRemoveWatcher(uint8 type, FileProc func)
+{
+    HiviewUnRegisterHieventFileWatcher(type, func);
+}
+
+int HiEventFileProc(uint8 type, const char *dest, uint8 mode)
+{
+    return HiEventFileProcImp(type, dest, mode);
 }
