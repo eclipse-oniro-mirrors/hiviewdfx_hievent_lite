@@ -42,18 +42,21 @@ static HiviewFile g_faultEventFile = {
     .path = HIVIEW_FILE_PATH_FAULT_EVENT,
     .outPath = HIVIEW_FILE_OUT_PATH_FAULT_EVENT,
     .pFunc = NULL,
+    .mutex = NULL,
     .fhandle = -1,
 };
 static HiviewFile g_ueEventFile = {
     .path = HIVIEW_FILE_PATH_UE_EVENT,
     .outPath = HIVIEW_FILE_OUT_PATH_UE_EVENT,
     .pFunc = NULL,
+    .mutex = NULL,
     .fhandle = -1,
 };
 static HiviewFile g_statEventFile = {
     .path = HIVIEW_FILE_PATH_STAT_EVENT,
     .outPath = HIVIEW_FILE_OUT_PATH_STAT_EVENT,
     .pFunc = NULL,
+    .mutex = NULL,
     .fhandle = -1,
 };
 
@@ -63,6 +66,12 @@ struct EventFlushInfo {
 };
 static EventFlushInfo g_eventFlushInfo;
 static HieventProc g_hieventOutputProc = NULL;
+
+typedef struct OutputEventInfo OutputEventInfo;
+struct OutputEventInfo {
+    HiviewMutexId_t mutex;
+};
+static OutputEventInfo g_outputEventInfo;
 
 /* Output the event to UART using plaintext. */
 static void OutputEventRealtime(const Request *req);
@@ -78,6 +87,7 @@ static void GetEventCache(uint8 type, HiviewCache **c, HiviewFile **f);
 void InitCoreEventOutput(void)
 {
     g_eventFlushInfo.mutex = HIVIEW_MutexInit();
+    g_outputEventInfo.mutex = HIVIEW_MutexInit();
     HiviewRegisterMsgHandle(HIVIEW_MSG_OUTPUT_EVENT_BIN_FILE, OutputEvent2Flash);
     HiviewRegisterMsgHandle(HIVIEW_MSG_OUTPUT_EVENT_FLOW, OutputEventRealtime);
 }
@@ -111,6 +121,7 @@ static void InitFaultEventOutput(void)
     if (InitHiviewFile(&g_faultEventFile, HIVIEW_FAULT_EVENT_FILE, FAULT_EVENT_FILE_SIZE) == FALSE) {
         printf("Open file[%d] failed.", HIVIEW_FAULT_EVENT_FILE);
     }
+    g_faultEventFile.mutex = g_outputEventInfo.mutex;
 }
 
 static void InitUeEventOutput(void)
@@ -125,6 +136,7 @@ static void InitUeEventOutput(void)
     if (InitHiviewFile(&g_ueEventFile, HIVIEW_UE_EVENT_FILE, UE_EVENT_FILE_SIZE) == FALSE) {
         printf("Open file[%d] failed.", HIVIEW_UE_EVENT_FILE);
     }
+    g_ueEventFile.mutex = g_outputEventInfo.mutex;
 }
 
 static void InitStatEventOutput(void)
@@ -139,6 +151,7 @@ static void InitStatEventOutput(void)
     if (InitHiviewFile(&g_statEventFile, HIVIEW_STAT_EVENT_FILE, STAT_EVENT_FILE_SIZE) == FALSE) {
         printf("Open file[%d] failed.", HIVIEW_STAT_EVENT_FILE);
     }
+    g_statEventFile.mutex = g_outputEventInfo.mutex;
 }
 
 static void CloseEventOutputFile(uint8 type)
@@ -524,4 +537,14 @@ void HiviewUnRegisterHieventFileWatcher(uint8 type, FileProc func)
     HiviewFile* f = NULL;
     GetEventCache(type, &c, &f);
     UnRegisterFileWatcher(f, func);
+}
+
+void HiEventOutputFileLockImp()
+{
+    HIVIEW_MutexLock(g_outputEventInfo.mutex);
+}
+
+void HiEventOutputFileUnLockImp()
+{
+    HIVIEW_MutexUnlock(g_outputEventInfo.mutex);
 }
