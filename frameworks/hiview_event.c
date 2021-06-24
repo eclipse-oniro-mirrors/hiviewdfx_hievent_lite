@@ -204,3 +204,13 @@ int HiEventFileProc(uint8 type, const char *dest, uint8 mode)
 {
     return HiEventFileProcImp(type, dest, mode);
 }
+
+void HiEventOutputFileLock()
+{
+    HiEventOutputFileLockImp();
+}
+
+void HiEventOutputFileUnLock()
+{
+    HiEventOutputFileUnLockImp();
+}

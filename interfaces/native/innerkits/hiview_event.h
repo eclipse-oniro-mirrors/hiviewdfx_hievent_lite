@@ -158,6 +158,18 @@ void HiEventFileRemoveWatcher(uint8 type, FileProc func);
  **/
 int HiEventFileProc(uint8 type, const char *dest, uint8 mode);
 
+/**
+ * Lock the hievent output target file.
+ *
+ **/
+void HiEventOutputFileLock();
+
+/**
+ * Unlock the hievent output target file.
+ *
+ **/
+void HiEventOutputFileUnLock();
+
 #ifndef HIEVENT_COMPILE_TYPE
 #define HIEVENT_COMPILE_TYPE (HIEVENT_FAULT | HIEVENT_UE | HIEVENT_STAT)
 #endif
