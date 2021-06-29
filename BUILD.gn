@@ -31,6 +31,7 @@ static_library("hievent_lite") {
     include_dirs = [
         "//base/hiviewdfx/hievent_lite/interfaces/native/innerkits",
         "//base/hiviewdfx/hiview_lite",
+        "//utils/native/lite/include",
         "//foundation/distributedschedule/samgr_lite/interfaces/kits/samgr",
     ]
     public_configs = ["//base/hiviewdfx/hiview_lite:hiview_lite_config"]

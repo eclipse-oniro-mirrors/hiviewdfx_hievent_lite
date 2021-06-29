@@ -18,5 +18,6 @@ static_library("hievent_lite_command") {
     cflags = [ "-Wall" ]
     include_dirs = [
         "//base/hiviewdfx/utils/lite",
+        "//utils/native/lite/include"
     ]
 }

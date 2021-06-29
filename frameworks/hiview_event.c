@@ -20,7 +20,6 @@
 #include "hiview_output_event.h"
 #include "hiview_service.h"
 #include "hiview_util.h"
-#include "ohos_types.h"
 #include "ohos_init.h"
 #include "securec.h"
 #include "string.h"
