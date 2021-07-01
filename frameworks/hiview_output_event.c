@@ -539,12 +539,12 @@ void HiviewUnRegisterHieventFileWatcher(uint8 type, FileProc func)
     UnRegisterFileWatcher(f, func);
 }
 
-void HiEventOutputFileLockImp()
+void HiEventOutputFileLockImp(void)
 {
     HIVIEW_MutexLock(g_outputEventInfo.mutex);
 }
 
-void HiEventOutputFileUnLockImp()
+void HiEventOutputFileUnLockImp(void)
 {
     HIVIEW_MutexUnlock(g_outputEventInfo.mutex);
 }

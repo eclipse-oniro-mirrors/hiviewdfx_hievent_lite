@@ -108,13 +108,13 @@ void HiviewUnRegisterHieventFileWatcher(uint8 type, FileProc func);
  * Lock the hievent output target file.
  *
  **/
-void HiEventOutputFileLockImp();
+void HiEventOutputFileLockImp(void);
 
 /**
  * Unlock the hievent output target file.
  *
  **/
-void HiEventOutputFileUnLockImp();
+void HiEventOutputFileUnLockImp(void);
 
 #ifdef __cplusplus
 #if __cplusplus
