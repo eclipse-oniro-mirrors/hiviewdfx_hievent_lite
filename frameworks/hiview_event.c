@@ -72,7 +72,7 @@ void HiEventPrintf(uint8 type, uint16 eventId, int8 key, uint32 value)
 
 HiEvent *HiEventCreate(uint8 type, uint16 eventId, uint8 num)
 {
-    if (g_hiviewConfig.eventSwitch == HIVIEW_FEATURE_OFF || num <= 1 || num > EVENT_VALUE_MAX_NUM) {
+    if (g_hiviewConfig.eventSwitch == HIVIEW_FEATURE_OFF || num > EVENT_VALUE_MAX_NUM) {
         return NULL;
     }
     HiEvent *event = NULL;
