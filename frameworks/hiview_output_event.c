@@ -525,6 +525,9 @@ int HiEventFileProcImp(uint8 type, const char *dest, uint8 mode)
 
 void HiviewRegisterHieventFileWatcher(uint8 type, FileProc func, const char *path)
 {
+    if (func == NULL || path == NULL) {
+        return;
+    }
     HiviewCache* c = NULL;
     HiviewFile* f = NULL;
     GetEventCache(type, &c, &f);
@@ -533,6 +536,9 @@ void HiviewRegisterHieventFileWatcher(uint8 type, FileProc func, const char *pat
 
 void HiviewUnRegisterHieventFileWatcher(uint8 type, FileProc func)
 {
+    if (func == NULL) {
+        return;
+    }
     HiviewCache* c = NULL;
     HiviewFile* f = NULL;
     GetEventCache(type, &c, &f);
