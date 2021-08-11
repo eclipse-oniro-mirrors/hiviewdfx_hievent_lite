@@ -101,8 +101,8 @@ void InitEventOutput(void)
 
 void ClearEventOutput(void)
 {
-    if (g_hiviewConfig.outputOption == OUTPUT_OPTION_BIN_FILE ||
-        g_hiviewConfig.outputOption == OUTPUT_OPTION_TEXT_FILE) {
+    int8 opt = GETOPTION(g_hiviewConfig.outputOption);
+    if (opt == OUTPUT_OPTION_BIN_FILE || opt == OUTPUT_OPTION_TEXT_FILE) {
         CloseEventOutputFile(FAULT_EVENT_CACHE);
         CloseEventOutputFile(UE_EVENT_CACHE);
         CloseEventOutputFile(STAT_EVENT_CACHE);
@@ -111,11 +111,11 @@ void ClearEventOutput(void)
 
 static void InitFaultEventOutput(void)
 {
+    int8 opt = GETOPTION(g_hiviewConfig.outputOption);
     if (InitHiviewCache(&g_faultEventCache, FAULT_EVENT_CACHE, EVENT_CACHE_SIZE) == FALSE) {
         printf("malloc[%d] fail.", FAULT_EVENT_CACHE);
     }
-    if (g_hiviewConfig.outputOption == OUTPUT_OPTION_DEBUG ||
-        g_hiviewConfig.outputOption == OUTPUT_OPTION_FLOW) {
+    if (opt == OUTPUT_OPTION_DEBUG || opt == OUTPUT_OPTION_FLOW) {
         return;
     }
     if (InitHiviewFile(&g_faultEventFile, HIVIEW_FAULT_EVENT_FILE, FAULT_EVENT_FILE_SIZE) == FALSE) {
@@ -129,8 +129,8 @@ static void InitUeEventOutput(void)
     if (InitHiviewCache(&g_ueEventCache, UE_EVENT_CACHE, EVENT_CACHE_SIZE) == FALSE) {
         printf("malloc[%d] fail.", UE_EVENT_CACHE);
     }
-    if (g_hiviewConfig.outputOption == OUTPUT_OPTION_DEBUG ||
-        g_hiviewConfig.outputOption == OUTPUT_OPTION_FLOW) {
+    int8 opt = GETOPTION(g_hiviewConfig.outputOption);
+    if (opt == OUTPUT_OPTION_DEBUG || opt == OUTPUT_OPTION_FLOW) {
         return;
     }
     if (InitHiviewFile(&g_ueEventFile, HIVIEW_UE_EVENT_FILE, UE_EVENT_FILE_SIZE) == FALSE) {
@@ -144,8 +144,8 @@ static void InitStatEventOutput(void)
     if (InitHiviewCache(&g_statEventCache, STAT_EVENT_CACHE, EVENT_CACHE_SIZE) == FALSE) {
         printf("malloc[%d] fail.", STAT_EVENT_CACHE);
     }
-    if (g_hiviewConfig.outputOption == OUTPUT_OPTION_DEBUG ||
-        g_hiviewConfig.outputOption == OUTPUT_OPTION_FLOW) {
+    int8 opt = GETOPTION(g_hiviewConfig.outputOption);
+    if (opt == OUTPUT_OPTION_DEBUG || opt == OUTPUT_OPTION_FLOW) {
         return;
     }
     if (InitHiviewFile(&g_statEventFile, HIVIEW_STAT_EVENT_FILE, STAT_EVENT_FILE_SIZE) == FALSE) {
@@ -199,8 +199,9 @@ void OutputEvent(const uint8 *data)
         }
     }
 
-    if (c->usedSize >= HIVIEW_HIEVENT_FILE_BUF_SIZE || g_hiviewConfig.outputOption == OUTPUT_OPTION_DEBUG) {
-        switch (g_hiviewConfig.outputOption) {
+    int8 opt = GETOPTION(g_hiviewConfig.outputOption);
+    if (c->usedSize >= HIVIEW_HIEVENT_FILE_BUF_SIZE || opt == OUTPUT_OPTION_DEBUG) {
+        switch (opt) {
             /* Event do not support the text format */
             case OUTPUT_OPTION_TEXT_FILE:
             case OUTPUT_OPTION_BIN_FILE:
@@ -408,7 +409,7 @@ static void GetEventCache(uint8 type, HiviewCache **c, HiviewFile **f)
 
 static void FlushEventAsync(const uint8 type)
 {
-    switch (g_hiviewConfig.outputOption) {
+    switch (GETOPTION(g_hiviewConfig.outputOption)) {
         /* Event do not support the text format */
         case OUTPUT_OPTION_TEXT_FILE:
         case OUTPUT_OPTION_BIN_FILE:
@@ -434,7 +435,7 @@ static void FlushEventInfo(const uint8 type, const HiviewCache *c, boolean syncF
             /* If syncFlag is FALSE, refresh event information asynchronously */
             FlushEventAsync(type);
         } else {
-            switch (g_hiviewConfig.outputOption) {
+            switch (GETOPTION(g_hiviewConfig.outputOption)) {
                 /* Event do not support the text format */
                 case OUTPUT_OPTION_TEXT_FILE:
                 case OUTPUT_OPTION_BIN_FILE:
@@ -525,6 +526,9 @@ int HiEventFileProcImp(uint8 type, const char *dest, uint8 mode)
 
 void HiviewRegisterHieventFileWatcher(uint8 type, FileProc func, const char *path)
 {
+    if (func == NULL || path == NULL) {
+        return;
+    }
     HiviewCache* c = NULL;
     HiviewFile* f = NULL;
     GetEventCache(type, &c, &f);
@@ -533,6 +537,9 @@ void HiviewRegisterHieventFileWatcher(uint8 type, FileProc func, const char *pat
 
 void HiviewUnRegisterHieventFileWatcher(uint8 type, FileProc func)
 {
+    if (func == NULL) {
+        return;
+    }
     HiviewCache* c = NULL;
     HiviewFile* f = NULL;
     GetEventCache(type, &c, &f);
