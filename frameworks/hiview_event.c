@@ -30,12 +30,12 @@
 #define ENCODE_VALUE_LEN2      2
 #define ENCODE_VALUE_LEN3      3
 #define ENCODE_VALUE_LEN4      4
-#define GET_UINT32_BYTE1(v)    (uint8)((v) & 0x000000FF)
-#define GET_UINT32_BYTE2(v)    (uint8)(((v) & 0x0000FF00) >> 8)
-#define GET_UINT32_BYTE3(v)    (uint8)(((v) & 0x00FF0000) >> 16)
-#define GET_UINT32_BYTE4(v)    (uint8)(((v) & 0xFF000000) >> 24)
+#define GET_UINT32_BYTE1(v)    (uint8)(((uint32)(v)) & 0x000000FF)
+#define GET_UINT32_BYTE2(v)    (uint8)((((uint32)(v)) & 0x0000FF00) >> 8)
+#define GET_UINT32_BYTE3(v)    (uint8)((((uint32)(v)) & 0x00FF0000) >> 16)
+#define GET_UINT32_BYTE4(v)    (uint8)((((uint32)(v)) & 0xFF000000) >> 24)
 
-static uint8 HiEventEncode(uint8 k, uint32 v, uint8 last, uint8 *encodeOut);
+static uint8 HiEventEncode(uint8 k, int32 v, uint8 last, uint8 *encodeOut);
 
 static void HiEventInit(void)
 {
@@ -48,7 +48,7 @@ static void HiEventInit(void)
 }
 CORE_INIT_PRI(HiEventInit, 1);
 
-void HiEventPrintf(uint8 type, uint16 eventId, int8 key, uint32 value)
+void HiEventPrintf(uint8 type, uint16 eventId, int8 key, int32 value)
 {
     if (g_hiviewConfig.eventSwitch == HIVIEW_FEATURE_OFF) {
         return;
@@ -95,7 +95,7 @@ HiEvent *HiEventCreate(uint8 type, uint16 eventId, uint8 num)
     return event;
 }
 
-void HiEventPutInteger(HiEvent *event, int8 key, uint32 value)
+void HiEventPutInteger(HiEvent *event, int8 key, int32 value)
 {
     if (g_hiviewConfig.eventSwitch == HIVIEW_FEATURE_OFF || event == NULL || event->payload == NULL ||
         key < 0 || event->common.mark == 0) {
@@ -130,7 +130,7 @@ void HiEventReport(HiEvent *event)
     }
 }
 
-static uint8 HiEventEncode(uint8 k, uint32 v, uint8 last, uint8 *encodeOut)
+static uint8 HiEventEncode(uint8 k, int32 v, uint8 last, uint8 *encodeOut)
 {
     HiEventTag tag;
 
@@ -139,11 +139,11 @@ static uint8 HiEventEncode(uint8 k, uint32 v, uint8 last, uint8 *encodeOut)
     }
     tag.last = last;
     tag.id = k;
-    if (v <= 0xFF) {
+    if (v >= 0 && v <= 0xFF) {
         tag.len = ENCODE_VALUE_LEN1;
-    } else if (v <= 0xFFFF) {
+    } else if (v >= 0 && v <= 0xFFFF) {
         tag.len = ENCODE_VALUE_LEN2;
-    } else if (v <= 0x00FFFFFF) {
+    } else if (v >= 0 && v <= 0x00FFFFFF) {
         tag.len = ENCODE_VALUE_LEN3;
     } else {
         tag.len = ENCODE_VALUE_LEN4;
