@@ -171,10 +171,8 @@ void OutputEvent(const uint8 *data)
         return;
     }
 
-    if (g_hieventOutputProc != NULL) {
-        if (g_hieventOutputProc((HiEvent *)data) == TRUE) {
-            return;
-        }
+    if (g_hieventOutputProc != NULL && g_hieventOutputProc((HiEvent *)data) == TRUE) {
+        return;
     }
 
     HiEvent *event = (HiEvent *)data;
@@ -193,10 +191,8 @@ void OutputEvent(const uint8 *data)
     if ((c->usedSize + sizeof(HiEventCommon) + event->common.len) > EVENT_CACHE_SIZE) {
         HIVIEW_UartPrint("HiEvent have no sufficient space to write event info to cache!\n");
         reachMaxThreshold = TRUE;
-    } else {
-        if (WriteToCache(c, (uint8 *)&(event->common), sizeof(HiEventCommon)) == sizeof(HiEventCommon)) {
-            WriteToCache(c, event->payload, event->common.len);
-        }
+    } else if (WriteToCache(c, (uint8 *)&(event->common), sizeof(HiEventCommon)) == sizeof(HiEventCommon)) {
+        WriteToCache(c, event->payload, event->common.len);
     }
 
     int8 opt = GETOPTION(g_hiviewConfig.outputOption);
@@ -218,8 +214,12 @@ void OutputEvent(const uint8 *data)
 
     /* The cache reach the max size, output and then write cache. */
     if (reachMaxThreshold) {
-        if (WriteToCache(c, (uint8 *)&(event->common), sizeof(HiEventCommon)) == sizeof(HiEventCommon)) {
-            WriteToCache(c, event->payload, event->common.len);
+        if ((c->usedSize + sizeof(HiEventCommon) + event->common.len) > EVENT_CACHE_SIZE) {
+            if (WriteToCache(c, (uint8 *)&(event->common), sizeof(HiEventCommon)) == sizeof(HiEventCommon)) {
+                WriteToCache(c, event->payload, event->common.len);
+            }
+        } else {
+            printf("HiEvent have no sufficient space to write, drop event id %d\n", event->common.eventId);
         }
     }
 }
