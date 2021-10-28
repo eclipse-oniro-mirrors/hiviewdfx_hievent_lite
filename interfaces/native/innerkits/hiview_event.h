@@ -81,7 +81,7 @@ typedef void (*FileProc)(const char *path, uint8 type, uint8 event);
  * @param value   The Value of the parameter.
  * @attention This event carry only one parameter.
  **/
-void HiEventPrintf(uint8 type, uint16 eventId, int8 key, uint32 value);
+void HiEventPrintf(uint8 type, uint16 eventId, int8 key, int32 value);
 
 /**
  * Create the HivewEvent object.
@@ -102,7 +102,7 @@ HiEvent *HiEventCreate(uint8 type, uint16 eventId, uint8 num);
  * @param key   The id of the parameter in the XML definition. Valid data range: 0-15.
  * @param value The Value of the parameter.
  **/
-void HiEventPutInteger(HiEvent *event, int8 key, uint32 value);
+void HiEventPutInteger(HiEvent *event, int8 key, int32 value);
 
 /**
  * Ouput the event object and release memory.
