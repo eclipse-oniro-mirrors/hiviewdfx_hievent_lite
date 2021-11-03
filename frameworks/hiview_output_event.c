@@ -26,6 +26,11 @@
 
 #define EVENT_PAYLOAD_MAX_SIZE   (5*16)
 
+#ifdef SYNC_FILE
+#undef SYNC_FILE
+#endif
+#define SYNC_FILE (1<<6)
+
 static HiviewCache g_faultEventCache = {
     .size = 0,
     .buffer = NULL,
@@ -276,9 +281,7 @@ static void Output2Flash(uint8 eventType)
     HiviewFile *f = NULL;
     uint8 *tmpBuffer = NULL;
     HiEventCommon *pEventCommon = NULL;
-    uint16 len = 0;
-    uint16 payloadLen;
-    uint16 outputSize;
+    uint16 len = 0, payloadLen, outputSize;
 
     GetEventCache((uint8)eventType, &c, &f);
     if (c == NULL) {
@@ -320,6 +323,9 @@ static void Output2Flash(uint8 eventType)
     }
     HIVIEW_MemFree(MEM_POOL_HIVIEW_ID, tmpBuffer);
     HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
+    if ((eventType & SYNC_FILE) != 0) {
+        HIVIEW_FileSync(f->fhandle);
+    }
 }
 
 uint32 GetEventFileSize(uint8 eventType)
@@ -389,21 +395,15 @@ int32 EventContentFmt(char *outStr, int32 outStrLen, const uint8 *pEvent)
 
 static void GetEventCache(uint8 type, HiviewCache **c, HiviewFile **f)
 {
-    switch (type) {
-        case HIEVENT_FAULT:
-            *c = &g_faultEventCache;
-            *f = &g_faultEventFile;
-            break;
-        case HIEVENT_UE:
-            *c = &g_ueEventCache;
-            *f = &g_ueEventFile;
-            break;
-        case HIEVENT_STAT:
-            *c = &g_statEventCache;
-            *f = &g_statEventFile;
-            break;
-        default:
-            break;
+    if (type & HIEVENT_FAULT) {
+        *c = &g_faultEventCache;
+        *f = &g_faultEventFile;
+    } else if (type & HIEVENT_UE) {
+        *c = &g_ueEventCache;
+        *f = &g_ueEventFile;
+    } else if (type & HIEVENT_STAT) {
+        *c = &g_statEventCache;
+        *f = &g_statEventFile;
     }
 }
 
@@ -413,7 +413,7 @@ static void FlushEventAsync(const uint8 type)
         /* Event do not support the text format */
         case OUTPUT_OPTION_TEXT_FILE:
         case OUTPUT_OPTION_BIN_FILE:
-            HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_BIN_FILE, type);
+            HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_BIN_FILE, type | SYNC_FILE);
             break;
         case OUTPUT_OPTION_FLOW:
             HiviewSendMessage(HIVIEW_SERVICE, HIVIEW_MSG_OUTPUT_EVENT_FLOW, type);
@@ -439,6 +439,7 @@ static void FlushEventInfo(const uint8 type, const HiviewCache *c, boolean syncF
                 /* Event do not support the text format */
                 case OUTPUT_OPTION_TEXT_FILE:
                 case OUTPUT_OPTION_BIN_FILE:
+                    request.msgValue |= SYNC_FILE;
                     OutputEvent2Flash(&request);
                     break;
                 case OUTPUT_OPTION_FLOW:
