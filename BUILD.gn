@@ -15,6 +15,8 @@ declare_args() {
   ohos_hiviewdfx_hievent_lite_fault_file_size = 1024
   ohos_hiviewdfx_hievent_lite_ue_file_size = 1024
   ohos_hiviewdfx_hievent_lite_stat_file_size = 1024
+  ohos_hiviewdfx_hievent_lite_cache_size = 256
+  ohos_hiviewdfx_hievent_lite_file_buffer_size = 128
 }
 
 static_library("hievent_lite") {
@@ -27,6 +29,8 @@ static_library("hievent_lite") {
     "FAULT_EVENT_FILE_SIZE = $ohos_hiviewdfx_hievent_lite_fault_file_size",
     "UE_EVENT_FILE_SIZE = $ohos_hiviewdfx_hievent_lite_ue_file_size",
     "STAT_EVENT_FILE_SIZE = $ohos_hiviewdfx_hievent_lite_stat_file_size",
+    "EVENT_CACHE_SIZE = $ohos_hiviewdfx_hievent_lite_cache_size",
+    "HIVIEW_HIEVENT_FILE_BUF_SIZE = $ohos_hiviewdfx_hievent_lite_file_buffer_size",
   ]
   include_dirs = [
     "//base/hiviewdfx/hievent_lite/interfaces/native/innerkits",
