@@ -12,12 +12,10 @@
 # limitations under the License.
 
 static_library("hievent_lite_command") {
-    sources = [
-        "hievent_lite_command.c",
-    ]
-    cflags = [ "-Wall" ]
-    include_dirs = [
-        "//base/hiviewdfx/utils/lite",
-        "//utils/native/lite/include"
-    ]
+  sources = [ "hievent_lite_command.c" ]
+  cflags = [ "-Wall" ]
+  include_dirs = [
+    "//base/hiviewdfx/utils/lite",
+    "//utils/native/lite/include",
+  ]
 }
