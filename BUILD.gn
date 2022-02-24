@@ -34,6 +34,7 @@ static_library("hievent_lite") {
   ]
   include_dirs = [
     "//base/hiviewdfx/hievent_lite/interfaces/native/innerkits",
+    "//base/hiviewdfx/hilog_lite/interfaces/native/kits/hilog_lite",
     "//base/hiviewdfx/hiview_lite",
     "//utils/native/lite/include",
     "//third_party/bounds_checking_function/include",

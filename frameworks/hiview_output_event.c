@@ -20,6 +20,7 @@
 #include "hiview_event.h"
 #include "hiview_cache.h"
 #include "hiview_config.h"
+#include "hiview_log.h"
 #include "hiview_file.h"
 #include "hiview_service.h"
 #include "hiview_output_event.h"
@@ -77,6 +78,11 @@ struct OutputEventInfo {
     HiviewMutexId_t mutex;
 };
 static OutputEventInfo g_outputEventInfo;
+
+static int32 g_retryFaultInitCount = 0;
+static int32 g_retryUeInitCount = 0;
+static int32 g_retryStatInitCount = 0;
+#define MAX_RETRY_COUNT 100
 
 /* Output the event to UART using plaintext. */
 static void OutputEventRealtime(const Request *req);
@@ -168,6 +174,44 @@ static void CloseEventOutputFile(uint8 type)
         Output2Flash(type);
     }
     CloseHiviewFile(f);
+}
+
+static void ReInitHiEventFile(uint8 eventType)
+{
+    if (eventType & HIEVENT_FAULT) {
+        if (g_retryFaultInitCount > MAX_RETRY_COUNT) {
+            return;
+        }
+        if (InitHiviewFile(&g_faultEventFile, HIVIEW_FAULT_EVENT_FILE, FAULT_EVENT_FILE_SIZE) == FALSE) {
+            HILOG_ERROR(HILOG_MODULE_HIVIEW, "Open file[%d] failed.", HIVIEW_FAULT_EVENT_FILE);
+            g_retryFaultInitCount++;
+        } else {
+            // once success, clean retry count
+            g_retryFaultInitCount = 0;
+        }
+    } else if (eventType & HIEVENT_UE) {
+        if (g_retryUeInitCount > MAX_RETRY_COUNT) {
+            return;
+        }
+        if (InitHiviewFile(&g_ueEventFile, HIVIEW_UE_EVENT_FILE, UE_EVENT_FILE_SIZE) == FALSE) {
+            HILOG_ERROR(HILOG_MODULE_HIVIEW, "Open file[%d] failed.", HIVIEW_UE_EVENT_FILE);
+            g_retryUeInitCount++;
+        } else {
+            // once success, clean retry count
+            g_retryUeInitCount = 0;
+        }
+    } else if (eventType & HIEVENT_STAT) {
+        if (g_retryStatInitCount > MAX_RETRY_COUNT) {
+            return;
+        }
+        if (InitHiviewFile(&g_statEventFile, HIVIEW_STAT_EVENT_FILE, STAT_EVENT_FILE_SIZE) == FALSE) {
+            HILOG_ERROR(HILOG_MODULE_HIVIEW, "Open file[%d] failed.", HIVIEW_STAT_EVENT_FILE);
+            g_retryStatInitCount++;
+        } else {
+            // once success, clean retry count
+            g_retryStatInitCount = 0;
+        }
+    }
 }
 
 void OutputEvent(const uint8 *data)
@@ -316,6 +360,9 @@ static void Output2Flash(uint8 eventType)
             }
             len += payloadLen;
         }
+    }
+    if (f->fhandle < 0) {
+        ReInitHiEventFile(eventType);
     }
     if (len > 0 && WriteToFile(f, tmpBuffer, len) != len) {
         g_hiviewConfig.writeFailureCount++;
@@ -527,7 +574,7 @@ int HiEventFileProcImp(uint8 type, const char *dest, uint8 mode)
 
 void HiviewRegisterHieventFileWatcher(uint8 type, FileProc func, const char *path)
 {
-    if (func == NULL || path == NULL) {
+    if (func == NULL) {
         return;
     }
     HiviewCache* c = NULL;
