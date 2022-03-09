@@ -21,8 +21,8 @@ This module provides APIs for printing faults, user behavior, and power consumpt
 
 [DFX subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/dfx.md)
 
-[hiviwdfx\_hilog\_lite](https://gitee.com/openharmony/hiviewdfx_hilog_lite/blob/master/README.md)
+[hiviewdfx\_hilog\_lite](https://gitee.com/openharmony/hiviewdfx_hilog_lite/blob/master/README.md)
 
-[hiviwdfx\_hiview\_lite](https://gitee.com/openharmony/hiviewdfx_hiview_lite/blob/master/README.md)
+[hiviewdfx\_hiview\_lite](https://gitee.com/openharmony/hiviewdfx_hiview_lite/blob/master/README.md)
 
-**hiviwdfx\_hievent\_lite**
+**hiviewdfx\_hievent\_lite**
