@@ -54,7 +54,7 @@ void HiEventPrintf(uint8 type, uint16 eventId, int8 key, int32 value)
         return;
     }
     HiEvent e = { 0 };
-    uint8 encodeBuffer[SINGLE_VALUE_MAX_LEN] = {0};
+    uint8 encodeBuffer[SINGLE_VALUE_MAX_LEN] = { 0 };
     e.common.mark = EVENT_INFO_HEAD;
     e.common.eventId = eventId;
     e.common.time = (uint32)(HIVIEW_GetCurrentTime() / MS_PER_SECOND);
@@ -75,8 +75,7 @@ HiEvent *HiEventCreate(uint8 type, uint16 eventId, uint8 num)
     if (g_hiviewConfig.eventSwitch == HIVIEW_FEATURE_OFF || num > EVENT_VALUE_MAX_NUM) {
         return NULL;
     }
-    HiEvent *event = NULL;
-    event = (HiEvent *)HIVIEW_MemAlloc(MEM_POOL_HIVIEW_ID, sizeof(HiEvent));
+    HiEvent *event = (HiEvent *)HIVIEW_MemAlloc(MEM_POOL_HIVIEW_ID, sizeof(HiEvent));
     if (event == NULL) {
         return NULL;
     }
@@ -122,12 +121,9 @@ void HiEventReport(HiEvent *event)
     if (event->common.mark == 0) {
         event->common.mark = EVENT_INFO_HEAD;
         OutputEvent((uint8 *)event);
-        HIVIEW_MemFree(MEM_POOL_HIVIEW_ID, event->payload);
-        HIVIEW_MemFree(MEM_POOL_HIVIEW_ID, (void *)event);
-    } else {
-        HIVIEW_MemFree(MEM_POOL_HIVIEW_ID, event->payload);
-        HIVIEW_MemFree(MEM_POOL_HIVIEW_ID, (void *)event);
     }
+    HIVIEW_MemFree(MEM_POOL_HIVIEW_ID, event->payload);
+    HIVIEW_MemFree(MEM_POOL_HIVIEW_ID, (void *)event);
 }
 
 static uint8 HiEventEncode(uint8 k, int32 v, uint8 last, uint8 *encodeOut)
@@ -148,7 +144,7 @@ static uint8 HiEventEncode(uint8 k, int32 v, uint8 last, uint8 *encodeOut)
     } else {
         tag.len = ENCODE_VALUE_LEN4;
     }
-    memcpy_s(encodeOut, sizeof(HiEventTag), (void *)&tag, sizeof(HiEventTag));
+    (void)memcpy_s(encodeOut, sizeof(HiEventTag), (void *)&tag, sizeof(HiEventTag));
 
     switch (tag.len) {
         case ENCODE_VALUE_LEN1:

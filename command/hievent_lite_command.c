@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "hiview_command.h"
+#include "hiview_lite_command.h"
 
 #include <ctype.h>
 
@@ -56,13 +56,13 @@ void HieventCmdProc(const char *cmd)
     switch (*(++cmd)) {
         case OPTION_HELP:
             HieventHelpProc();
-            return;
+            break;
         case OPTION_SET:
             HieventSetProc(++cmd);
-            return;
+            break;
         default:
             HIVIEW_UartPrint("Invalid command.\n");
-            return;
+            break;
     }
 }
 
@@ -92,8 +92,8 @@ static void HieventSetProc(const char *cmd)
 static boolean CheckCmdStr(const char *cmd)
 {
     while (*cmd != '\0') {
-        if (!(isalnum(*cmd) || (*cmd == ' ') || (*cmd == '\n')
-            || (*cmd == '=') || (*cmd == '-'))) {
+        if (!(isalnum(*cmd) || (*cmd == ' ') || (*cmd == '\n') ||
+            (*cmd == '=') || (*cmd == '-'))) {
             return FALSE;
         }
         cmd++;
@@ -103,6 +103,5 @@ static boolean CheckCmdStr(const char *cmd)
 
 void SwitchEvent(uint8 flag)
 {
-    (flag == HIVIEW_FEATURE_ON) ? (g_hiviewConfig.eventSwitch = HIVIEW_FEATURE_ON) :
-    (g_hiviewConfig.eventSwitch = HIVIEW_FEATURE_OFF);
+    g_hiviewConfig.eventSwitch = (flag == HIVIEW_FEATURE_ON) ? HIVIEW_FEATURE_ON : HIVIEW_FEATURE_OFF
 }

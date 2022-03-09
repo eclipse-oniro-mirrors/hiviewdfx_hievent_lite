@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "hiview_output_event.h"
 #include "securec.h"
 #include "ohos_types.h"
 #include "hiview_def.h"
@@ -23,14 +24,13 @@
 #include "hiview_log.h"
 #include "hiview_file.h"
 #include "hiview_service.h"
-#include "hiview_output_event.h"
 
-#define EVENT_PAYLOAD_MAX_SIZE   (5*16)
+#define EVENT_PAYLOAD_MAX_SIZE   (5 * 16)
 
 #ifdef SYNC_FILE
 #undef SYNC_FILE
 #endif
-#define SYNC_FILE (1<<6)
+#define SYNC_FILE (1 << 6)
 
 static HiviewCache g_faultEventCache = {
     .size = 0,
@@ -302,11 +302,7 @@ static void OutputEventRealtime(const Request *req)
         if (payloadLen > 0 && ReadFromCache(c, payload, payloadLen) != payloadLen) {
             break;
         }
-        if (payloadLen > 0) {
-            event.payload = payload;
-        } else {
-            event.payload = NULL;
-        }
+        event.payload = (payloadLen > 0) ? payload : NULL;
         EventContentFmt(tmpBuffer, LOG_FMT_MAX_LEN, (uint8 *)&event);
         HIVIEW_UartPrint(tmpBuffer);
     }
@@ -407,6 +403,12 @@ uint32 ReadEventFile(uint8 eventType, uint8 *buf, uint32 len)
 
 int32 EventContentFmt(char *outStr, int32 outStrLen, const uint8 *pEvent)
 {
+    if (outStrLen < TAIL_LINE_BREAK) {
+        return -1;
+    }
+    if (pEvent == NULL) {
+        return -1;
+    }
     int32 len;
     uint32 time, hour, mte, sec;
     HiEvent *event = (HiEvent *)pEvent;
@@ -451,6 +453,9 @@ static void GetEventCache(uint8 type, HiviewCache **c, HiviewFile **f)
     } else if (type & HIEVENT_STAT) {
         *c = &g_statEventCache;
         *f = &g_statEventFile;
+    } else {
+        *c = NULL;
+        *f = NULL;
     }
 }
 
@@ -472,12 +477,12 @@ static void FlushEventAsync(const uint8 type)
 
 static void FlushEventInfo(const uint8 type, const HiviewCache *c, boolean syncFlag)
 {
-    Request request = {0};
-    request.msgValue = type;
     if (c == NULL) {
         return;
     }
-    if (c != NULL && c->usedSize > 0) {
+    Request request = {0};
+    request.msgValue = type;
+    if (c->usedSize > 0) {
         if (syncFlag == FALSE) {
             /* If syncFlag is FALSE, refresh event information asynchronously */
             FlushEventAsync(type);
