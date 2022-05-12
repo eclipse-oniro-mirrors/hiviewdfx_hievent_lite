@@ -338,7 +338,7 @@ static void Output2Flash(uint8 eventType)
         HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
         return;
     }
-    while (c->usedSize >= sizeof(HiEventCommon) && outputSize > (len + sizeof(HiEventCommon))) {
+    while (c->usedSize >= sizeof(HiEventCommon) && outputSize >= (len + sizeof(HiEventCommon))) {
         if (ReadFromCache(c, tmpBuffer + len, sizeof(HiEventCommon)) != sizeof(HiEventCommon)) {
             continue;
         }
