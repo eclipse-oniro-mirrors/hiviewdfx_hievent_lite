@@ -572,7 +572,7 @@ int HiEventFileProcImp(uint8 type, const char *dest, uint8 mode)
         HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
         return -1;
     }
-    int ret = ProcFile(f, dest, mode);
+    int ret = ProcFile(f, dest, (FileProcMode)mode);
     HIVIEW_MutexUnlock(g_eventFlushInfo.mutex);
     return ret;
 }
