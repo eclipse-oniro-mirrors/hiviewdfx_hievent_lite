@@ -17,9 +17,10 @@ declare_args() {
   ohos_hiviewdfx_hievent_lite_stat_file_size = 1024
   ohos_hiviewdfx_hievent_lite_cache_size = 256
   ohos_hiviewdfx_hievent_lite_file_buffer_size = 128
+  ohos_hiviewdfx_hievent_lite_customize_implementation = false
 }
 
-static_library("hievent_lite") {
+static_library("hievent_lite_static") {
   sources = [
     "frameworks/hiview_event.c",
     "frameworks/hiview_output_event.c",
@@ -42,4 +43,12 @@ static_library("hievent_lite") {
   ]
   public_configs = [ "//base/hiviewdfx/hiview_lite:hiview_lite_config" ]
   deps = [ "//base/hiviewdfx/hiview_lite" ]
+}
+
+group("hievent_lite") {
+  if (ohos_hiviewdfx_hievent_lite_customize_implementation) {
+    public_configs = [ "//base/hiviewdfx/hiview_lite:hiview_lite_config" ]
+  } else {
+    public_deps = [ ":hievent_lite_static" ]
+  }
 }
