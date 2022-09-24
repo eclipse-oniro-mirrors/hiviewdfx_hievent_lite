@@ -50,6 +50,7 @@ static HiviewFile g_faultEventFile = {
     .pFunc = NULL,
     .mutex = NULL,
     .fhandle = -1,
+    .configSize = 0,
 };
 static HiviewFile g_ueEventFile = {
     .path = HIVIEW_FILE_PATH_UE_EVENT,
@@ -57,6 +58,7 @@ static HiviewFile g_ueEventFile = {
     .pFunc = NULL,
     .mutex = NULL,
     .fhandle = -1,
+    .configSize = 0,
 };
 static HiviewFile g_statEventFile = {
     .path = HIVIEW_FILE_PATH_STAT_EVENT,
@@ -64,6 +66,7 @@ static HiviewFile g_statEventFile = {
     .pFunc = NULL,
     .mutex = NULL,
     .fhandle = -1,
+    .configSize = 0,
 };
 
 typedef struct EventFlushInfo EventFlushInfo;
