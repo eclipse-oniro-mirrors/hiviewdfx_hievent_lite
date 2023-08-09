@@ -6,7 +6,7 @@
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "base/hiviewdfx/hidumper_lite/mini"
+        "destPath": "base/hiviewdfx/hievent_lite/mini"
     },
     "dirs": {},
     "scripts": {},
@@ -23,7 +23,7 @@
         "ram": "~10KB",
         "deps": {
             "components": [
-                "utils_base",
+                "utils_lite",
                 "hiview_lite",
                 "samgr_lite"
             ],
