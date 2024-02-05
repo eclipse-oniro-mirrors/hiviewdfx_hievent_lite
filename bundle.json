@@ -13,9 +13,6 @@
     "component": {
         "name": "hievent_lite",
         "subsystem": "hiviewdfx",
-        "syscap": [
-            "SystemCapability.HiviewDFX.HiEventLite"
-        ],
         "adapted_system_type": [
             "mini"
         ],
