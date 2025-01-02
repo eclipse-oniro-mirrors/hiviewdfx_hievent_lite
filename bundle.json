@@ -17,6 +17,11 @@
             "mini"
         ],
         "features": [
+            "hievent_lite_fault_file_size",
+            "hievent_lite_ue_file_size",
+            "hievent_lite_stat_file_size",
+            "hievent_lite_cache_size",
+            "hievent_lite_file_buffer_size",
             "hievent_lite_customize_implementation"
         ],
         "rom": "26KB",
